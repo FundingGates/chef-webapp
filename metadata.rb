@@ -8,7 +8,7 @@ version          "0.1.7"
 
 recipe           "webapp", "Default webapp recipe"
 
-depends 'nginx', '2.2.0' # Fixed at 2.2.0 release since we're overriding it a bit
+depends 'nginx', '~> 2.7.4'
 depends 'nodejs', '~> 1.3.0'
 depends 'postgresql', '~> 3.3.4'
 depends 'redisio', '~> 1.7.0'
