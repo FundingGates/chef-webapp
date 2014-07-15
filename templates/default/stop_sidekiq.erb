@@ -3,14 +3,22 @@
 #  YOU WISH TO MAKE A MODIFICATION, YOU SHOULD DO SO IN THE CHEF KITCHEN FOR THIS SERVER AND RUN:
 #  `amoeba node push --node <%= node[:name] %>`
 
-pid_file="<%= node[:application][:run_path] %>/sidekiq.pid-$1";
 
-if [ -d <%= node[:application][:current_path] %> ] && \
-   [ -f $pid_file ] && \
-   kill -0 `cat $pid_file` > /dev/null 2>&1
-then
-  cd <%= node[:application][:current_path] %> && \
-  bundle exec sidekiqctl stop $pid_file 10
-else
-  echo 'Sidekiq is not running'
+# Ensure only a number was passed in.
+
+re='^[0-9]+$'
+if ! [[ $1 =~ $re ]] ; then
+    echo "error: Not a number" >&2; exit 1
 fi
+
+
+# Try 5 times to stop this sidekiq instance,
+# retrying if Monit is still starting a previous instance.
+
+n=0
+until [ $n -ge 5 ]; do
+    sudo /usr/bin/monit stop sidekiq-$1
+    [ $? -eq 0 ] && break
+    n=$[$n+1]
+    sleep 5
+done

@@ -1,0 +1,59 @@
+# /etc/init/sidekiq.conf - Sidekiq config
+## NOTE: THIS FILE IS MANAGED BY CHEF. CHANGES TO THIS FILE WILL BE REMOVED THE NEXT CHEF RUN. IF
+#  YOU WISH TO MAKE A MODIFICATION, YOU SHOULD DO SO IN THE CHEF KITCHEN FOR THIS SERVER AND RUN:
+#  `amoeba node push --node <%= node[:name] %>`
+
+# Based on https://github.com/mperham/sidekiq/blob/master/examples/upstart/manage-one/sidekiq.conf
+
+# Manage the group of sidekiq processes with:
+#   sudo monit -g <%= node[:application][:name] %>_sidekiq start all
+#   sudo monit -g <%= node[:application][:name] %>_sidekiq stop all
+#   sudo monit -g <%= node[:application][:name] %>_sidekiq restart all
+#
+# Manage individual sidekiq processes with:
+#   sudo start sidekiq index=0
+#   sudo stop sidekiq index=0
+#   sudo status sidekiq index=0
+
+description "Sidekiq Background Worker"
+
+# No "start on"; we'll let monit start us up.
+stop on (stopping workers or runlevel [06])
+
+setuid <%= node[:application][:user][:name] %>
+setgid <%= node[:application][:user][:name] %>
+
+respawn
+respawn limit 3 30
+
+# TERM and USR1 are sent by sidekiqctl when stopping sidekiq.
+# Without declaring these as normal exit codes, it just respawns.
+normal exit 0 TERM USR1
+
+instance $index
+
+env log="<%= node[:application][:log_path] %>/sidekiq.log"
+env config="<%= node[:application][:config_path] %>/sidekiq.yml"
+env environment="<%= node[:application][:environment] %>"
+env pid_file="<%= node[:application][:run_path] %>/sidekiq.pid-${index}"
+
+chdir /home/<%= node[:application][:user][:name] %>/current
+
+script
+
+# Use bash instead of sh to support redirection.
+exec /bin/bash <<EOT
+
+# Redirect stdout, stderr to log file
+exec &>> ${log}
+
+exec "/home/<%= node[:application][:user][:name] %>/.rvm/wrappers/<%= node[:application][:ruby_version] %>@global/bundle" \
+    exec sidekiq \
+    -e ${environment} \
+    -C ${config} \
+    -i ${index} \
+    -P ${pid_file}
+
+EOT
+
+end script

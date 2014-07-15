@@ -30,6 +30,15 @@ template "/#{node[:application][:init_path]}/stop_sidekiq" do
   source "stop_sidekiq.erb"
 end
 
+
+template "/etc/init/sidekiq.conf" do
+  owner 'root'
+  group 'root'
+  mode 0644
+  source "upstart/sidekiq.conf.erb"
+end
+
+
 execute "restart-sidekiq" do
   command %Q{
     echo "sleep 20 && monit -g #{node[:application][:name]}_sidekiq restart all" | at now
