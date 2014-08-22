@@ -17,8 +17,22 @@ fi
 
 n=0
 until [ $n -ge 5 ]; do
-    sudo /usr/bin/monit start sidekiq-$1
-    [ $? -eq 0 ] && break
+    OUTPUT=$(sudo /usr/bin/monit start sidekiq-$1 2>&1)
+    MONIT_EXITCODE=$?
+
+    if [ ${MONIT_EXITCODE} -eq 0 ]; then
+        echo "Sidekiq instance $1 restarted"
+        break
+    fi
+
+    if [[ "${OUTPUT}" = *"please try again later"* ]]; then
+        echo "Waiting for instance $1 to stop before starting again..."
+    else
+        echo "Failure: Got unexpected output while trying to start instance $1:"
+        echo ${OUTPUT}
+        exit ${MONIT_EXITCODE}
+    fi
+
     n=$[$n+1]
-    sleep 5
+    sleep 3
 done
