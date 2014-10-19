@@ -55,6 +55,7 @@ server {
   <% if node[:application][:ssl][:enabled] %>
   # Also some SSL directives:
   listen 443 ssl;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
   ssl_certificate /etc/ssl/public/<%= node[:application][:ssl][:cert_name] %>-chained.pem;
   ssl_certificate_key /etc/ssl/private/<%= node[:application][:ssl][:cert_name] %>.key;
   <% end %>
