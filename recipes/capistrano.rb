@@ -36,3 +36,15 @@ directory app.config_path do
   group     app.user.group
   mode      0700
 end
+
+directory app.shared_path do
+  owner app.user.name
+  group app.user.group
+  mode 0700
+end
+
+directory "#{app.shared_path}/config" do
+  owner app.user.name
+  group app.user.group
+  mode 0700
+end
