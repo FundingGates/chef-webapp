@@ -30,7 +30,7 @@ template "/etc/monit/conf.d/#{db_type}.conf" do
   notifies :reload, 'service[monit]', :delayed
 end
 
-file "#{app.config_path}/database.yml" do
+file "#{app.shared_path}/config/database.yml" do
   owner app.user.name
   group app.user.group
   mode  0600
