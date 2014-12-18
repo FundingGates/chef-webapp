@@ -14,6 +14,23 @@ end
   end
 end
 
+directory "#{app.releases_path}/empty" do
+  owner app.user.name
+  group app.user.group
+  mode 0775
+end
+
+directory "#{app.releases_path}/empty/config" do
+  owner app.user.name
+  group app.user.group
+  mode 0700
+end
+
+link app.current_path do
+  to "#{app.releases_path}/empty"
+  not_if "test -f #{app.current_path}"
+end
+
 directory app.config_path do
   owner     app.user.name
   group     app.user.group
