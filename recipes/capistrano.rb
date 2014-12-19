@@ -28,12 +28,6 @@ directory "#{app.releases_path}/empty/config" do
   not_if "test -f #{app.current_path}"
 end
 
-directory app.config_path do
-  owner     app.user.name
-  group     app.user.group
-  mode      0700
-end
-
 directory app.shared_path do
   owner app.user.name
   group app.user.group
