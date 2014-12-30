@@ -59,5 +59,5 @@ end
 # Finally, link the current release to the dummy 'empty' release.
 link app.current_path do
   to "#{app.releases_path}/empty"
-  not_if "test -f #{app.current_path}"
+  not_if "test -L #{app.current_path}"
 end
