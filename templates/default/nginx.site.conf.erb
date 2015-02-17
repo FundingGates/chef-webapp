@@ -68,6 +68,8 @@ server {
   error_page 422 /422.html;
   error_page 404 /404.html;
 
+  large_client_header_buffers 4 32k;
+
   <% if app[:type].match /unicorn/i %>
   location / {
     try_files $uri @app;
